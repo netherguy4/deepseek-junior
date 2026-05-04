@@ -1,0 +1,63 @@
+{
+  "manifest_version": "0.2",
+  "name": "deepseek-junior",
+  "display_name": "DeepSeek Junior",
+  "version": "0.2.0",
+  "description": "Delegate code work to DeepSeek V4 as a junior developer.",
+  "long_description": "DeepSeek Junior turns DeepSeek V4 into a junior developer you orchestrate. The host agent (Claude / Codex) writes plans and makes decisions; DeepSeek executes mechanical work — codebase scanning, implementing plan steps, code review. Streams generation progress live via MCP progress notifications.",
+  "author": {
+    "name": "DeepSeek MCP contributors"
+  },
+  "license": "MIT",
+  "keywords": ["deepseek", "delegation", "code-review", "junior", "agent"],
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/server/index.js"],
+      "env": {
+        "DEEPSEEK_API_KEY": "${user_config.api_key}",
+        "DEEPSEEK_FAST_MODEL": "${user_config.fast_model}",
+        "DEEPSEEK_PRO_MODEL": "${user_config.pro_model}",
+        "DEEPSEEK_BASE_URL": "${user_config.base_url}"
+      }
+    }
+  },
+  "user_config": {
+    "api_key": {
+      "type": "string",
+      "title": "DeepSeek API Key",
+      "description": "Get one at platform.deepseek.com. Stored encrypted in the OS keychain.",
+      "sensitive": true,
+      "required": true
+    },
+    "fast_model": {
+      "type": "string",
+      "title": "Fast model",
+      "description": "Used by deepseek_explore and the 'flash' option of deepseek_ask.",
+      "default": "deepseek-v4-flash",
+      "required": false
+    },
+    "pro_model": {
+      "type": "string",
+      "title": "Pro model",
+      "description": "Used by deepseek_implement, deepseek_review, and the 'pro' option of deepseek_ask.",
+      "default": "deepseek-v4-pro",
+      "required": false
+    },
+    "base_url": {
+      "type": "string",
+      "title": "API base URL",
+      "description": "Override to use a self-hosted DeepSeek-compatible endpoint.",
+      "default": "https://api.deepseek.com",
+      "required": false
+    }
+  },
+  "tools": [
+    { "name": "deepseek_explore", "description": "Explore codebase with the fast model" },
+    { "name": "deepseek_implement", "description": "Implement a plan step with deep reasoning" },
+    { "name": "deepseek_review", "description": "Critical code review with deep reasoning" },
+    { "name": "deepseek_ask", "description": "Generic prompt with full control" }
+  ]
+}

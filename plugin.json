@@ -1,0 +1,19 @@
+{
+  "name": "deepseek-junior",
+  "version": "0.2.0",
+  "description": "Delegate code work to DeepSeek V4 as a junior developer.",
+  "author": {
+    "name": "DeepSeek MCP contributors"
+  },
+  "license": "MIT",
+  "keywords": ["deepseek", "delegation", "code-review", "junior", "agent"],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "DeepSeek Junior",
+    "shortDescription": "DeepSeek V4 as a junior dev — delegate scanning, implementation, review.",
+    "longDescription": "Four MCP tools (deepseek_explore, deepseek_implement, deepseek_review, deepseek_ask) plus a SKILL.md that teaches Codex when to delegate. Streams generation progress live via MCP notifications.",
+    "category": "Developer Tools",
+    "capabilities": ["Read", "Write"]
+  }
+}

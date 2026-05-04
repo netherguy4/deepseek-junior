@@ -1,0 +1,7 @@
+node_modules/
+server/
+dist/
+*.mcpb
+*.tsbuildinfo
+deepseek_mcp.log
+.DS_Store
