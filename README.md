@@ -3,9 +3,12 @@
 DeepSeek V4 как «джун» для Claude Desktop и Codex Desktop. Пишете план →
 делегируете шаги → DeepSeek пишет код, а вы только проверяете.
 
-Распространяется одним файлом `.mcpb` (222 КБ), внутри которого
-самосодержащий MCP-сервер + skill-инструкция + конфиги для обоих
-клиентов. Стримит вывод в реальном времени через MCP progress
+Распространяется двумя файлами:
+- `.mcpb` — для Claude Desktop (один клик, встроенный конфиг секретов).
+- `.zip`  — для Codex Desktop (plugin install из папки или GitHub).
+
+Внутри — самосодержащий MCP-сервер + skill-инструкция + конфиги для
+обоих клиентов. Стримит вывод в реальном времени через MCP progress
 notifications — видно, что агент в моменте делает.
 
 ## Что внутри
@@ -50,12 +53,8 @@ notifications — видно, что агент в моменте делает.
 
 ### Codex Desktop
 
-У Codex нет однофайловой установки, но всё ставится из той же папки,
-которая лежит внутри `.mcpb`. Два пути:
-
-**Способ A — установка из распакованной папки.** Переименуйте
-`deepseek-mcp.mcpb` → `deepseek-mcp.zip`, распакуйте в любую стабильную
-папку (`~/tools/deepseek-mcp/`), затем:
+**Способ A — установка из ZIP.** Скачайте `deepseek-mcp.zip` из релизов,
+распакуйте в любую стабильную папку (`~/tools/deepseek-mcp/`), затем:
 
 ```bash
 codex plugin install ~/tools/deepseek-mcp
@@ -114,7 +113,7 @@ git clone <repo>
 cd deepseek-mcp
 npm install
 npm run release    # = typecheck + bundle + validate manifest + pack
-ls dist/           # → deepseek-mcp.mcpb готов к раздаче
+ls dist/           # → deepseek-mcp.mcpb + deepseek-mcp.zip готовы к раздаче
 ```
 
 Команды по отдельности:
@@ -122,7 +121,9 @@ ls dist/           # → deepseek-mcp.mcpb готов к раздаче
 - `npm run build` — esbuild собирает `src/index.ts` → `server/index.js`
   (один self-contained файл, ~1.1 МБ)
 - `npm run validate` — валидация `manifest.json` против MCPB schema
-- `npm run pack` — упаковка в `dist/deepseek-mcp.mcpb`
+- `npm run pack:mcpb` — упаковка в `dist/deepseek-mcp.mcpb` (для Claude Desktop)
+- `npm run pack:zip` — копия в `dist/deepseek-mcp.zip` (для Codex Desktop)
+- `npm run pack` — обе упаковки разом
 
 `server/index.js` коммитится в репо — чтобы Codex-пользователи могли
 установить плагин из GitHub без ручной сборки.
@@ -148,9 +149,10 @@ deepseek-mcp/
 │   └── build.mjs              # esbuild-скрипт
 ├── package.json
 ├── tsconfig.json
-├── .mcpbignore                # что не класть в .mcpb (node_modules, src, …)
+├── .mcpbignore                # что не класть в .mcpb/.zip (node_modules, src, …)
 └── dist/
-    └── deepseek-mcp.mcpb      # релизный артефакт
+    ├── deepseek-mcp.mcpb      # релизный артефакт (Claude Desktop)
+    └── deepseek-mcp.zip       # релизный артефакт (Codex Desktop)
 ```
 
 В `.mcpb`-архив попадают только нужные для рантайма файлы: `manifest.json`,

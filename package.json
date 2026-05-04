@@ -7,7 +7,9 @@
     "build": "node scripts/build.mjs",
     "typecheck": "tsc --noEmit",
     "validate": "mcpb validate manifest.json",
-    "pack": "mcpb pack . dist/deepseek-mcp.mcpb",
+    "pack:mcpb": "mcpb pack . dist/deepseek-mcp.mcpb",
+    "pack:zip": "node scripts/pack-zip.mjs",
+    "pack": "npm run pack:mcpb && npm run pack:zip",
     "release": "npm run typecheck && npm run build && npm run validate && npm run pack",
     "start": "node server/index.js"
   },

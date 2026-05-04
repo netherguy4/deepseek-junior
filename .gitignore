@@ -2,6 +2,7 @@ node_modules/
 server/
 dist/
 *.mcpb
+*.zip
 *.tsbuildinfo
 deepseek_mcp.log
 .DS_Store
