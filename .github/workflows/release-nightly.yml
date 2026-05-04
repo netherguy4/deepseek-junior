@@ -1,0 +1,53 @@
+name: Release (nightly)
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  nightly:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+
+      - name: Extract version
+        id: version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Build and pack
+        run: |
+          npm ci
+          npm run release
+
+      - name: Force-push nightly tag
+        run: |
+          git tag -f nightly
+          git push -f origin nightly
+
+      - name: Delete previous nightly release
+        run: gh release delete nightly --yes 2>/dev/null || true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Create nightly release
+        run: |
+          gh release create nightly \
+            --prerelease \
+            --title "Nightly (v${{ steps.version.outputs.version }})" \
+            --notes "Nightly build from \`main\`.
+
+            **Version:** v${{ steps.version.outputs.version }}
+            **Commit:** ${{ github.sha }}" \
+            dist/*.mcpb \
+            dist/*.zip
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
