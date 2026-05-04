@@ -1,4 +1,4 @@
-# Dependencies (regenerated via pnpm install --frozen-lockfile at install time)
+# Dependencies (bundled into server/index.js by esbuild)
 node_modules/
 
 # Source code (compiled into server/index.js by build)
@@ -8,6 +8,8 @@ scripts/
 # VCS
 .git/
 .husky/
+.github/
+.worktrees/
 
 # Build output (prevents recursive packing)
 dist/
@@ -21,3 +23,6 @@ pnpm-lock.yaml
 .npmrc
 .nvmrc
 .prettierrc
+docs/
+deepseek_mcp.log
+*.tsbuildinfo
