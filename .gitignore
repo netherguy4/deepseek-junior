@@ -8,3 +8,4 @@ dist/
 *.tsbuildinfo
 deepseek_mcp.log
 .DS_Store
+.worktrees/
