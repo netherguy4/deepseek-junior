@@ -1,0 +1,23 @@
+# Dependencies (regenerated via pnpm install --frozen-lockfile at install time)
+node_modules/
+
+# Source code (compiled into server/index.js by build)
+src/
+scripts/
+
+# VCS
+.git/
+.husky/
+
+# Build output (prevents recursive packing)
+dist/
+
+# Dev config files (not needed at runtime)
+tsconfig.json
+vitest.config.ts
+eslint.config.mjs
+pnpm-lock.yaml
+.lintstagedrc.json
+.npmrc
+.nvmrc
+.prettierrc
