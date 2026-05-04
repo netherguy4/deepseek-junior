@@ -1,8 +1,10 @@
 node_modules/
+package-lock.json
 server/
 dist/
 *.mcpb
 *.zip
+*.tgz
 *.tsbuildinfo
 deepseek_mcp.log
 .DS_Store

@@ -4,8 +4,9 @@ DeepSeek V4 как «джун» для Claude Desktop и Codex Desktop. Пише
 делегируете шаги → DeepSeek пишет код, а вы только проверяете.
 
 Распространяется двумя файлами:
+
 - `.mcpb` — для Claude Desktop (один клик, встроенный конфиг секретов).
-- `.zip`  — для Codex Desktop (plugin install из папки или GitHub).
+- `.zip` — для Codex Desktop (plugin install из папки или GitHub).
 
 Внутри — самосодержащий MCP-сервер + skill-инструкция + конфиги для
 обоих клиентов. Стримит вывод в реальном времени через MCP progress
@@ -15,12 +16,12 @@ notifications — видно, что агент в моменте делает.
 
 **MCP-инструменты:**
 
-| Tool                  | Модель                       | Когда звать                                                                |
-|-----------------------|------------------------------|----------------------------------------------------------------------------|
-| `deepseek_explore`    | `deepseek-v4-flash`          | Найти файлы, понять структуру папки, быстрый обзор.                        |
-| `deepseek_implement`  | `deepseek-v4-pro` + thinking | Реализовать шаг плана, рефакторинг, тесты, нетривиальный баг.              |
-| `deepseek_review`     | `deepseek-v4-pro` + thinking | Критическое ревью кода: баги, безопасность, edge cases.                    |
-| `deepseek_ask`        | любая (по выбору)            | Универсальный fallback.                                                    |
+| Tool                 | Модель                       | Когда звать                                                   |
+| -------------------- | ---------------------------- | ------------------------------------------------------------- |
+| `deepseek_explore`   | `deepseek-v4-flash`          | Найти файлы, понять структуру папки, быстрый обзор.           |
+| `deepseek_implement` | `deepseek-v4-pro` + thinking | Реализовать шаг плана, рефакторинг, тесты, нетривиальный баг. |
+| `deepseek_review`    | `deepseek-v4-pro` + thinking | Критическое ревью кода: баги, безопасность, edge cases.       |
+| `deepseek_ask`       | любая (по выбору)            | Универсальный fallback.                                       |
 
 **Skill (`deepseek-junior`):** короткая инструкция агенту — когда стоит
 делегировать, а когда не стоит. Codex подхватывает её автоматически из
@@ -88,12 +89,14 @@ Codex потянет репозиторий и поставит как plugin. �
 (см. «Сборка из исходников» ниже).
 
 **Claude Code:**
+
 ```bash
 claude mcp add --transport stdio --env DEEPSEEK_API_KEY=... \
   deepseek -- node /путь/к/deepseek-mcp/server/index.js
 ```
 
 **Codex CLI:**
+
 ```bash
 codex mcp add deepseek --env DEEPSEEK_API_KEY=... \
   -- node /путь/к/deepseek-mcp/server/index.js
@@ -117,6 +120,7 @@ ls dist/           # → deepseek-mcp.mcpb + deepseek-mcp.zip готовы к р
 ```
 
 Команды по отдельности:
+
 - `npm run typecheck` — проверка типов через `tsc --noEmit`
 - `npm run build` — esbuild собирает `src/index.ts` → `server/index.js`
   (один self-contained файл, ~1.1 МБ)
@@ -164,16 +168,16 @@ deepseek-mcp/
 
 ## Переменные окружения
 
-| Переменная                | По умолчанию                | Назначение                                              |
-|---------------------------|-----------------------------|---------------------------------------------------------|
-| `DEEPSEEK_API_KEY`        | —                           | **Обязательно.** Ключ DeepSeek.                         |
-| `DEEPSEEK_BASE_URL`       | `https://api.deepseek.com`  | Прокси / совместимый endpoint (например, локальный vLLM). |
-| `DEEPSEEK_FAST_MODEL`     | `deepseek-v4-flash`         | Модель для `deepseek_explore` и режима `flash`.         |
-| `DEEPSEEK_PRO_MODEL`      | `deepseek-v4-pro`           | Модель для `deepseek_implement` / `deepseek_review`.    |
-| `DEEPSEEK_TIMEOUT_MS`     | `300000` (5 мин)            | Таймаут одного запроса.                                 |
-| `DEEPSEEK_PROGRESS_MS`    | `250`                       | Интервал отправки прогресс-нотификаций (мс).            |
-| `DEEPSEEK_LOG_FILE`       | `./deepseek_mcp.log`        | Куда писать лог.                                        |
-| `DEEPSEEK_LOG_ENABLED`    | `true`                      | `false` чтобы выключить логирование.                    |
+| Переменная             | По умолчанию               | Назначение                                                |
+| ---------------------- | -------------------------- | --------------------------------------------------------- |
+| `DEEPSEEK_API_KEY`     | —                          | **Обязательно.** Ключ DeepSeek.                           |
+| `DEEPSEEK_BASE_URL`    | `https://api.deepseek.com` | Прокси / совместимый endpoint (например, локальный vLLM). |
+| `DEEPSEEK_FAST_MODEL`  | `deepseek-v4-flash`        | Модель для `deepseek_explore` и режима `flash`.           |
+| `DEEPSEEK_PRO_MODEL`   | `deepseek-v4-pro`          | Модель для `deepseek_implement` / `deepseek_review`.      |
+| `DEEPSEEK_TIMEOUT_MS`  | `300000` (5 мин)           | Таймаут одного запроса.                                   |
+| `DEEPSEEK_PROGRESS_MS` | `250`                      | Интервал отправки прогресс-нотификаций (мс).              |
+| `DEEPSEEK_LOG_FILE`    | `./deepseek_mcp.log`       | Куда писать лог.                                          |
+| `DEEPSEEK_LOG_ENABLED` | `true`                     | `false` чтобы выключить логирование.                      |
 
 В Claude Desktop первые четыре подставляются из `user_config` (форма
 ввода появляется при установке `.mcpb`). В Codex/CLI — задаются в
@@ -223,10 +227,10 @@ prompt при старте сессии, агент решает использ�
 2. **Claude/Codex:** строит план, читает 1–2 ключевых файла сам.
 3. **→ `deepseek_explore`** — «найди все места, где обрабатывается
    /api/login и где middleware подключаются к роутеру».
-   *Видите в реальном времени: «💭 DeepSeek thinking (120 tok)…»*
+   _Видите в реальном времени: «💭 DeepSeek thinking (120 tok)…»_
 4. **→ `deepseek_implement`** — «реализуй middleware на 10 req/min,
    используя express-rate-limit», передаёт нужные файлы.
-   *«✍️ DeepSeek writing (530 tok): …app.use('/api', rateLimiter)»*
+   _«✍️ DeepSeek writing (530 tok): …app.use('/api', rateLimiter)»_
 5. DeepSeek возвращает код + список действий (поставить deps,
    запустить тесты).
 6. **Claude/Codex** применяет изменения нативными edit-tool'ами,

@@ -32,10 +32,8 @@ const FAST_MODEL = process.env.DEEPSEEK_FAST_MODEL ?? "deepseek-v4-flash";
 const PRO_MODEL = process.env.DEEPSEEK_PRO_MODEL ?? "deepseek-v4-pro";
 const TIMEOUT_MS = Number(process.env.DEEPSEEK_TIMEOUT_MS ?? "300000"); // 5 min
 const PROGRESS_INTERVAL_MS = Number(process.env.DEEPSEEK_PROGRESS_MS ?? "250");
-const LOG_FILE =
-  process.env.DEEPSEEK_LOG_FILE ?? path.join(process.cwd(), "deepseek_mcp.log");
-const LOG_ENABLED =
-  (process.env.DEEPSEEK_LOG_ENABLED ?? "true").toLowerCase() !== "false";
+const LOG_FILE = process.env.DEEPSEEK_LOG_FILE ?? path.join(process.cwd(), "deepseek_mcp.log");
+const LOG_ENABLED = (process.env.DEEPSEEK_LOG_ENABLED ?? "true").toLowerCase() !== "false";
 
 // File reading limits (per tool call)
 const MAX_FILE_BYTES = 1_000_000;
@@ -44,9 +42,23 @@ const MAX_FILES = 50;
 const MAX_TREE_DEPTH = 4;
 
 const SKIP_DIRS = new Set([
-  "node_modules", ".git", "dist", "build", ".next", ".turbo",
-  "__pycache__", ".venv", "venv", "target", ".idea", ".vscode",
-  "coverage", ".cache", ".pytest_cache", ".mypy_cache", ".tox",
+  "node_modules",
+  ".git",
+  "dist",
+  "build",
+  ".next",
+  ".turbo",
+  "__pycache__",
+  ".venv",
+  "venv",
+  "target",
+  ".idea",
+  ".vscode",
+  "coverage",
+  ".cache",
+  ".pytest_cache",
+  ".mypy_cache",
+  ".tox",
 ]);
 
 // ---------------- logging ----------------
@@ -80,11 +92,17 @@ type CallResult = {
   completionTokens?: number;
 };
 
+/** OpenAI-compatible SSE stream chunk */
+type SseChunk = {
+  choices?: { delta?: { content?: string; reasoning_content?: string } }[];
+  usage?: { prompt_tokens?: number; completion_tokens?: number };
+};
+
 /**
  * Parse a single SSE line and return the parsed JSON event payload, or null.
  * DeepSeek/OpenAI-compatible streaming uses "data: {...}\n" with "data: [DONE]" terminator.
  */
-function parseSseLine(line: string): unknown | null | "DONE" {
+export function parseSseLine(line: string): unknown | null | "DONE" {
   const trimmed = line.trim();
   if (!trimmed.startsWith("data:")) return null;
   const body = trimmed.slice(5).trim();
@@ -140,9 +158,7 @@ async function callDeepSeekStreaming(opts: CallOptions): Promise<CallResult> {
     const ax = err as AxiosError<{ error?: { message?: string } }>;
     const status = ax.response?.status;
     const msg = ax.response?.data?.error?.message ?? ax.message;
-    await log(
-      `ERR connect model=${opts.model} dur=${dur}ms status=${status ?? "-"} msg=${msg}`,
-    );
+    await log(`ERR connect model=${opts.model} dur=${dur}ms status=${status ?? "-"} msg=${msg}`);
     return { content: `DeepSeek API error (status=${status ?? "n/a"}): ${msg}` };
   }
 
@@ -161,10 +177,7 @@ async function callDeepSeekStreaming(opts: CallOptions): Promise<CallResult> {
     lastProgressAt = now;
     // Show last ~80 chars of whatever is being generated, prefer content over reasoning
     const peekSource = content || reasoning;
-    const peek = peekSource
-      .replace(/\s+/g, " ")
-      .trim()
-      .slice(-80);
+    const peek = peekSource.replace(/\s+/g, " ").trim().slice(-80);
     const prefix = content ? "✍️" : "💭";
     const tag = content ? "writing" : "thinking";
     const msg = peek
@@ -189,7 +202,8 @@ async function callDeepSeekStreaming(opts: CallOptions): Promise<CallResult> {
           return;
         }
         // OpenAI-compatible chunk shape
-        const choice = (ev as any)?.choices?.[0];
+        const chunk = ev as SseChunk;
+        const choice = chunk?.choices?.[0];
         const delta = choice?.delta ?? {};
         if (typeof delta.content === "string" && delta.content) {
           content += delta.content;
@@ -201,7 +215,7 @@ async function callDeepSeekStreaming(opts: CallOptions): Promise<CallResult> {
           tokenCount++;
           sendProgress();
         }
-        const usage = (ev as any)?.usage;
+        const usage = chunk?.usage;
         if (usage) {
           promptTokens = usage.prompt_tokens;
           completionTokens = usage.completion_tokens;
@@ -230,7 +244,7 @@ async function callDeepSeekStreaming(opts: CallOptions): Promise<CallResult> {
   return result;
 }
 
-function formatResult(r: CallResult): string {
+export function formatResult(r: CallResult): string {
   if (r.reasoning && r.reasoning.trim()) {
     return `<thinking>\n${r.reasoning.trim()}\n</thinking>\n\n${r.content || "(empty)"}`;
   }
@@ -238,7 +252,7 @@ function formatResult(r: CallResult): string {
 }
 
 // ---------------- file helpers ----------------
-function isSafePath(p: string): boolean {
+export function isSafePath(p: string): boolean {
   if (typeof p !== "string" || p.length === 0) return false;
   if (p.includes("\0")) return false;
   return true;
@@ -252,10 +266,7 @@ async function readFileCapped(absPath: string): Promise<string> {
     try {
       const buf = Buffer.alloc(MAX_FILE_BYTES);
       await fh.read(buf, 0, MAX_FILE_BYTES, 0);
-      return (
-        buf.toString("utf8") +
-        `\n\n[... truncated; original size ${stat.size} bytes]`
-      );
+      return buf.toString("utf8") + `\n\n[... truncated; original size ${stat.size} bytes]`;
     } finally {
       await fh.close();
     }
@@ -383,8 +394,14 @@ const server = new McpServer({
   version: "0.2.0",
 });
 
+type McpExtra = {
+  _meta?: { progressToken?: unknown };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  sendNotification?: (msg: any) => Promise<void>;
+};
+
 // Helper: extract progressToken from extra arg, return a sender (or no-op)
-function makeProgressSender(extra: any): ProgressFn {
+export function makeProgressSender(extra: McpExtra): ProgressFn {
   const token = extra?._meta?.progressToken;
   const send = extra?.sendNotification;
   if (token === undefined || typeof send !== "function") {
@@ -418,16 +435,21 @@ server.registerTool(
       "or get a quick overview before reading specific files. Cheaper and faster " +
       "than deepseek_implement.",
     inputSchema: {
-      query: z.string().min(1).describe(
-        "What you want to know, e.g. 'find files that handle user auth' or " +
-          "'summarize what api/ does'.",
-      ),
-      directory: z.string().default(".").describe(
-        "Directory to walk (relative to project root). Default: '.'",
-      ),
-      include_files: z.array(z.string()).default([]).describe(
-        "Optional file paths to include verbatim (in addition to the tree).",
-      ),
+      query: z
+        .string()
+        .min(1)
+        .describe(
+          "What you want to know, e.g. 'find files that handle user auth' or " +
+            "'summarize what api/ does'.",
+        ),
+      directory: z
+        .string()
+        .default(".")
+        .describe("Directory to walk (relative to project root). Default: '.'"),
+      include_files: z
+        .array(z.string())
+        .default([])
+        .describe("Optional file paths to include verbatim (in addition to the tree)."),
     },
   },
   async ({ query, directory, include_files }, extra) => {
@@ -470,16 +492,21 @@ server.registerTool(
       "writing tests, fixing a non-trivial bug. Pass relevant files via 'files' " +
       "and DeepSeek will read them itself.",
     inputSchema: {
-      instruction: z.string().min(1).describe(
-        "A precise task. Include goal, constraints, edge cases, and how the " +
-          "result will be consumed.",
-      ),
-      files: z.array(z.string()).default([]).describe(
-        "Paths to files DeepSeek should read for context (max 50, 8 MB total).",
-      ),
-      extra_context: z.string().default("").describe(
-        "Free-form additional context: error messages, requirements, decisions.",
-      ),
+      instruction: z
+        .string()
+        .min(1)
+        .describe(
+          "A precise task. Include goal, constraints, edge cases, and how the " +
+            "result will be consumed.",
+        ),
+      files: z
+        .array(z.string())
+        .default([])
+        .describe("Paths to files DeepSeek should read for context (max 50, 8 MB total)."),
+      extra_context: z
+        .string()
+        .default("")
+        .describe("Free-form additional context: error messages, requirements, decisions."),
     },
   },
   async ({ instruction, files, extra_context }, extra) => {
@@ -523,10 +550,13 @@ server.registerTool(
       "API misuse. Returns a structured list of concrete issues with " +
       "severity, location, fix. Use BEFORE committing risky changes.",
     inputSchema: {
-      criteria: z.string().min(1).describe(
-        "What to look for, e.g. 'security issues', 'race conditions', " +
-          "'error handling', 'general code quality'.",
-      ),
+      criteria: z
+        .string()
+        .min(1)
+        .describe(
+          "What to look for, e.g. 'security issues', 'race conditions', " +
+            "'error handling', 'general code quality'.",
+        ),
       files: z.array(z.string()).min(1).describe("Paths to files to review."),
     },
   },
@@ -589,12 +619,11 @@ server.registerTool(
         .enum(["flash", "pro"])
         .default("pro")
         .describe("'flash' for speed/cost, 'pro' for quality."),
-      reasoning: z.boolean().default(false).describe(
-        "Enable thinking mode (slower, deeper).",
-      ),
-      files: z.array(z.string()).default([]).describe(
-        "Optional file paths to include in the context.",
-      ),
+      reasoning: z.boolean().default(false).describe("Enable thinking mode (slower, deeper)."),
+      files: z
+        .array(z.string())
+        .default([])
+        .describe("Optional file paths to include in the context."),
     },
   },
   async ({ prompt, system, model, reasoning, files }, extra) => {
@@ -651,12 +680,19 @@ async function main(): Promise<void> {
   }
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  await log(
-    `started base=${BASE_URL} fast=${FAST_MODEL} pro=${PRO_MODEL} cwd=${process.cwd()}`,
-  );
+  await log(`started base=${BASE_URL} fast=${FAST_MODEL} pro=${PRO_MODEL} cwd=${process.cwd()}`);
 }
 
-main().catch((err) => {
-  process.stderr.write(`fatal: ${err}\n`);
-  process.exit(1);
-});
+// Only start the server when run directly (not imported for testing)
+const isMain =
+  process.argv[1] &&
+  (process.argv[1].endsWith("index.js") ||
+    process.argv[1].endsWith("index.ts") ||
+    process.argv[1].endsWith("index.mjs"));
+
+if (isMain) {
+  main().catch((err) => {
+    process.stderr.write(`fatal: ${err}\n`);
+    process.exit(1);
+  });
+}

@@ -21,6 +21,10 @@ jobs:
         with:
           node-version-file: ".nvmrc"
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: latest
+
       - name: Detect version change
         id: detect
         run: |
@@ -51,8 +55,8 @@ jobs:
       - name: Build and pack
         if: steps.detect.outputs.changed == 'true' && steps.check.outputs.exists == 'false'
         run: |
-          npm ci
-          npm run release
+          pnpm install --frozen-lockfile
+          pnpm run release
 
       - name: Create and push tag
         if: steps.detect.outputs.changed == 'true' && steps.check.outputs.exists == 'false'
