@@ -84,8 +84,8 @@ Codex потянет репозиторий и поставит как plugin. �
 
 ### TUI / IDE-клиенты (для тех кто на ты с терминалом)
 
-`.mcpb` для них не нужен — достаточно собранного `server/index.js` из
-репозитория.
+`.mcpb` для них не нужен — склонируйте репо и соберите `server/index.js`
+(см. «Сборка из исходников» ниже).
 
 **Claude Code:**
 ```bash
@@ -125,8 +125,9 @@ ls dist/           # → deepseek-mcp.mcpb + deepseek-mcp.zip готовы к р
 - `npm run pack:zip` — копия в `dist/deepseek-mcp.zip` (для Codex Desktop)
 - `npm run pack` — обе упаковки разом
 
-`server/index.js` коммитится в репо — чтобы Codex-пользователи могли
-установить плагин из GitHub без ручной сборки.
+`server/index.js` генерируется при сборке и **не** коммитится (`server/`
+в `.gitignore`). Установка из GitHub-репо работает только через готовые
+артефакты из релизов.
 
 ---
 
@@ -144,7 +145,7 @@ deepseek-mcp/
 ├── src/
 │   └── index.ts               # TypeScript исходник
 ├── server/
-│   └── index.js               # esbuild-бандл (committed)
+│   └── index.js               # esbuild-бандл (генерируется, не коммитится)
 ├── scripts/
 │   └── build.mjs              # esbuild-скрипт
 ├── package.json
