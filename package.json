@@ -4,7 +4,7 @@
   "description": "DeepSeek V4 as a junior dev for Claude / Codex via MCP",
   "type": "module",
   "scripts": {
-    "build": "node build.mjs",
+    "build": "node scripts/build.mjs",
     "typecheck": "tsc --noEmit",
     "validate": "mcpb validate manifest.json",
     "pack": "mcpb pack . dist/deepseek-mcp.mcpb",

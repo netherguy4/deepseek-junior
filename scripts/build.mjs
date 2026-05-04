@@ -6,7 +6,7 @@ import { mkdirSync, chmodSync } from "node:fs";
 mkdirSync("server", { recursive: true });
 
 await esbuild.build({
-  entryPoints: ["index.ts"],
+  entryPoints: ["src/index.ts"],
   bundle: true,
   outfile: "server/index.js",
   platform: "node",
