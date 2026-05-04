@@ -391,7 +391,7 @@ You have four DeepSeek tools (\`deepseek_explore\`, \`deepseek_implement\`,
 // ---------------- server ----------------
 const server = new McpServer({
   name: "deepseek-junior",
-  version: "0.2.0",
+  version: "0.2.1",
 });
 
 type McpExtra = {

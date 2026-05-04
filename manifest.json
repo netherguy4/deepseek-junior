@@ -2,7 +2,7 @@
   "manifest_version": "0.2",
   "name": "deepseek-junior",
   "display_name": "DeepSeek Junior",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Delegate code work to DeepSeek V4 as a junior developer.",
   "long_description": "DeepSeek Junior turns DeepSeek V4 into a junior developer you orchestrate. The host agent (Claude / Codex) writes plans and makes decisions; DeepSeek executes mechanical work — codebase scanning, implementing plan steps, code review. Streams generation progress live via MCP progress notifications.",
   "author": {

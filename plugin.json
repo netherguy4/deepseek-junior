@@ -1,6 +1,6 @@
 {
   "name": "deepseek-junior",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Delegate code work to DeepSeek V4 as a junior developer.",
   "author": {
     "name": "DeepSeek MCP contributors"
