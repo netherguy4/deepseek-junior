@@ -8,6 +8,13 @@ const rootDir = resolve(__dirname, "..");
 
 const pkg = JSON.parse(readFileSync(resolve(rootDir, "package.json"), "utf-8"));
 
+// If the tag for this version already exists, delete it so npm can recreate it.
+const tag = `v${pkg.version}`;
+const existingTags = execSync("git tag -l", { cwd: rootDir, encoding: "utf-8" }).trim().split("\n");
+if (existingTags.includes(tag)) {
+  execSync(`git tag -d ${tag}`, { cwd: rootDir, stdio: "inherit" });
+}
+
 for (const file of ["manifest.json", "plugin.json"]) {
   const filePath = resolve(rootDir, file);
   const content = JSON.parse(readFileSync(filePath, "utf-8"));
