@@ -5,10 +5,11 @@ import { callDeepSeekStreaming, formatResult } from "./deepseek.js";
 import { gatherFiles, walkTree } from "./files.js";
 import { makeProgressSender } from "./progress.js";
 import { SKILL_INSTRUCTIONS } from "./skill.js";
+import pkg from "../package.json" with { type: "json" };
 
 export const server = new McpServer({
   name: "deepseek-junior",
-  version: "0.2.1",
+  version: pkg.version,
 });
 
 /** Wrap a string into the MCP content array shape that every tool returns. */

@@ -17,6 +17,7 @@
     "pack:zip": "node scripts/pack-zip.mjs",
     "pack": "pnpm run pack:mcpb && pnpm run pack:zip",
     "release": "pnpm run typecheck && pnpm run build && pnpm run validate && pnpm run pack",
+    "version": "node scripts/sync-version.mjs",
     "start": "node server/index.js"
   },
   "packageManager": "pnpm@10.33.2",

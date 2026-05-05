@@ -55,9 +55,21 @@
     }
   },
   "tools": [
-    { "name": "deepseek_explore", "description": "Explore codebase with the fast model" },
-    { "name": "deepseek_implement", "description": "Implement a plan step with deep reasoning" },
-    { "name": "deepseek_review", "description": "Critical code review with deep reasoning" },
-    { "name": "deepseek_ask", "description": "Generic prompt with full control" }
+    {
+      "name": "deepseek_explore",
+      "description": "Explore codebase with the fast model"
+    },
+    {
+      "name": "deepseek_implement",
+      "description": "Implement a plan step with deep reasoning"
+    },
+    {
+      "name": "deepseek_review",
+      "description": "Critical code review with deep reasoning"
+    },
+    {
+      "name": "deepseek_ask",
+      "description": "Generic prompt with full control"
+    }
   ]
 }
