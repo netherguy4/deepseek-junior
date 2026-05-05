@@ -1,6 +1,6 @@
 {
   "name": "deepseek-mcp",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "DeepSeek V4 as a junior dev for Claude / Codex via MCP",
   "type": "module",
   "scripts": {
