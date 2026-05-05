@@ -1,8 +1,11 @@
 {
   "mcpServers": {
-    "deepseek": {
+    "deepseek-dev": {
       "command": "node",
-      "args": ["./server/index.js"]
+      "args": ["./server/index.js"],
+      "env": {
+        "DEEPSEEK_API_KEY": "${DEEPSEEK_API_KEY}"
+      }
     }
   }
 }
