@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { execSync } from "node:child_process";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = resolve(__dirname, "..");
@@ -14,3 +15,6 @@ for (const file of ["manifest.json", "plugin.json"]) {
   writeFileSync(filePath, JSON.stringify(content, null, 2) + "\n");
   console.log(`✓ ${file} → ${pkg.version}`);
 }
+
+execSync("git add manifest.json plugin.json", { cwd: rootDir });
+console.log("✓ staged manifest.json plugin.json for version commit");
